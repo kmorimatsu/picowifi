@@ -13,6 +13,7 @@ pico_sdk_init()
 if (TARGET tinyusb_device)
 	add_executable(hello_usb
 			hello_usb.c
+			picow_ntp_client.c
 		)
 
 	# enable usb output, disable uart output

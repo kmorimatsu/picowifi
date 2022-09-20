@@ -8,6 +8,8 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
+void run_ntp_test(void);
+
 char ssid[] = WIFI_SSID;
 char pass[] = WIFI_PASSWORD;
 
@@ -29,6 +31,9 @@ int main() {
 		return 1;
 	}
 	printf("connected\n");
+
+    run_ntp_test();
+    cyw43_arch_deinit();
 
 	while (true) {
 		printf("Hello, world!\n");
