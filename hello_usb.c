@@ -12,6 +12,7 @@
 
 void run_ntp_test(void);
 void run_tcp_client_test(const char* ipaddr);
+void run_tcp_server_test(void);
 
 char ssid[] = WIFI_SSID;
 char pass[] = WIFI_PASSWORD;
@@ -74,7 +75,12 @@ int main() {
 			break;
 		}
 	}
-	printf("connected\n");
+	ip_addr_t ip = cyw43_state.netif[0].ip_addr;
+	// Following strings are the components of ifcongig[]
+	printf("connected as %s\n",ip4addr_ntoa(&ip));
+	printf("subnetmask: %s\n",ip4addr_ntoa(&cyw43_state.netif[0].netmask));
+	printf("gateway: %s\n",ip4addr_ntoa((ip_addr_t*)&cyw43_state.netif[0].gw.addr));
+	printf("DNS: %s\n",ip4addr_ntoa(dns_getserver(0)));
 
 	// DNS test follows
 	int err=dns_lookup("abehiroshi.la.coocan.jp",&server_address);
@@ -85,8 +91,10 @@ int main() {
 	//run_ntp_test();
 	
 	// TCP client test follows
-	// TODO: Solve the error here (test failed -1)
-	run_tcp_client_test(ip4addr_ntoa(&server_address));
+	//run_tcp_client_test(ip4addr_ntoa(&server_address));
+	
+	// TCP server test follows
+	run_tcp_server_test();
 
 	// All done
 	cyw43_arch_deinit();

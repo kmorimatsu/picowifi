@@ -15,6 +15,7 @@ if (TARGET tinyusb_device)
 			hello_usb.c
 			picow_ntp_client.c
 			picow_tcp_client.c
+			picow_tcp_server.c
 		)
 
 	# enable usb output, disable uart output
