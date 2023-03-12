@@ -16,6 +16,7 @@ if (TARGET tinyusb_device)
 			picow_ntp_client.c
 			picow_tcp_client.c
 			picow_tcp_server.c
+			picow_tls_client.c
 		)
 
 	# enable usb output, disable uart output
@@ -37,6 +38,8 @@ if (TARGET tinyusb_device)
 	# Pull in our pico_stdlib which aggregates commonly used features
 	target_link_libraries(hello_usb
 			pico_cyw43_arch_lwip_threadsafe_background
+			pico_lwip_mbedtls
+			pico_mbedtls
 			pico_stdlib
 		)
 

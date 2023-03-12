@@ -13,6 +13,7 @@
 void run_ntp_test(void);
 void run_tcp_client_test(const char* ipaddr);
 void run_tcp_server_test(void);
+void run_tls_client_test(void);
 
 char ssid[] = WIFI_SSID;
 char pass[] = WIFI_PASSWORD;
@@ -94,7 +95,10 @@ int main() {
 	//run_tcp_client_test(ip4addr_ntoa(&server_address));
 	
 	// TCP server test follows
-	run_tcp_server_test();
+	//run_tcp_server_test();
+	
+	// HTTPS client test follows
+	run_tls_client_test();
 
 	// All done
 	cyw43_arch_deinit();
