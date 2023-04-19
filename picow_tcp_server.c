@@ -50,8 +50,7 @@ static TCP_SERVER_T* tcp_server_init(void) {
     return state;
 }
 
-static err_t tcp_server_close(void *arg) {
-    TCP_SERVER_T *state = (TCP_SERVER_T*)arg;
+static err_t tcp_server_client_close(TCP_SERVER_T *state){
     err_t err = ERR_OK;
     if (state->client_pcb != NULL) {
         tcp_arg(state->client_pcb, NULL);
@@ -67,6 +66,12 @@ static err_t tcp_server_close(void *arg) {
         }
         state->client_pcb = NULL;
     }
+    return err;
+}
+
+static err_t tcp_server_close(void *arg) {
+    TCP_SERVER_T *state = (TCP_SERVER_T*)arg;
+    err_t err = tcp_server_client_close(state);
     if (state->server_pcb) {
         tcp_arg(state->server_pcb, NULL);
         tcp_close(state->server_pcb);
@@ -128,7 +133,8 @@ err_t tcp_server_send_data(void *arg, struct tcp_pcb *tpcb)
 err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err) {
     TCP_SERVER_T *state = (TCP_SERVER_T*)arg;
     if (!p) {
-        return tcp_server_result(arg, -1);
+    	return tcp_server_client_close(state);
+        //return tcp_server_result(arg, -1);
     }
     // this method is callback from lwIP, so cyw43_arch_lwip_begin is not required, however you
     // can use this method to cause an assertion in debug mode, if this method is called when
@@ -146,7 +152,7 @@ err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err
     pbuf_free(p);
 
     // Have we have received the whole buffer
-    if (state->recv_len == BUF_SIZE) {
+    /*if (state->recv_len == BUF_SIZE) {
 
         // check it matches
         if (memcmp(state->buffer_sent, state->buffer_recv, BUF_SIZE) != 0) {
@@ -164,14 +170,15 @@ err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err
 
         // Send another buffer
         return tcp_server_send_data(arg, state->client_pcb);
-    }
+    }//*/
     return tcp_server_send_data(arg, state->client_pcb);
     return ERR_OK;
 }
 
 static err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb) {
     DEBUG_printf("tcp_server_poll_fn\n");
-    return tcp_server_result(arg, -1); // no response is an error?
+    return tcp_server_client_close((TCP_SERVER_T *) arg);
+    //return tcp_server_result(arg, -1); // no response is an error?
 }
 
 static void tcp_server_err(void *arg, err_t err) {
