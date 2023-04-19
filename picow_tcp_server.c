@@ -40,6 +40,7 @@ typedef struct TCP_SERVER_T_ {
     int sent_len;
     int recv_len;
     int run_count;
+    void* server_state;
 } TCP_SERVER_T;
 
 static TCP_SERVER_T* tcp_server_init(void) {
@@ -67,16 +68,26 @@ static err_t tcp_server_client_close(TCP_SERVER_T *state){
         }
         state->client_pcb = NULL;
     }
+    free(state);
     return err;
 }
 
 static err_t tcp_server_close(void *arg) {
     TCP_SERVER_T *state = (TCP_SERVER_T*)arg;
-    err_t err = tcp_server_client_close(state);
+    err_t err;
     if (state->server_pcb) {
         tcp_arg(state->server_pcb, NULL);
         tcp_close(state->server_pcb);
         state->server_pcb = NULL;
+    }
+    if (state->server_state) {
+    	state=state->server_state;
+	    if (state->server_pcb) {
+	        tcp_arg(state->server_pcb, NULL);
+	        tcp_close(state->server_pcb);
+	        state->server_pcb = NULL;
+	    }
+	    err=tcp_server_client_close(arg);
     }
     return err;
 }
@@ -162,6 +173,15 @@ static err_t tcp_server_accept(void *arg, struct tcp_pcb *client_pcb, err_t err)
         return ERR_VAL;
     }
     DEBUG_printf("Client connected\n");
+    
+    // Create new state for client
+    // This must be released when closing connection; see tcp_server_client_close()
+    state = tcp_server_init();
+    if (!state) {
+        tcp_server_result(arg, -1);
+        return ERR_MEM;
+    }
+    state->server_state=arg;
 
     state->client_pcb = client_pcb;
     tcp_arg(client_pcb, state);
@@ -170,7 +190,6 @@ static err_t tcp_server_accept(void *arg, struct tcp_pcb *client_pcb, err_t err)
     tcp_poll(client_pcb, tcp_server_poll, POLL_TIME_S * 2);
     tcp_err(client_pcb, tcp_server_err);
 
-    //return tcp_server_send_data(arg, state->client_pcb);
     return ERR_OK;
 }
 
