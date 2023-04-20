@@ -128,8 +128,8 @@ static void tcp_server_err(void *arg, err_t err) {
 
 static err_t tcp_server_accept(void *arg, struct tcp_pcb *client_pcb, err_t err) {
     if (err != ERR_OK || client_pcb == NULL) {
-        DEBUG_printf("Failure in accept\n");
-        tcp_server_result(arg, err);
+        DEBUG_printf("Failure in accept\n",err);
+        if (client_pcb) tcp_close(client_pcb);
         return ERR_VAL;
     }
     DEBUG_printf("Client connected\n");
