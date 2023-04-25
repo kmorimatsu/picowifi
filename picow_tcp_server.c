@@ -22,7 +22,8 @@
 static char g_response[]=
 	"HTTP/1.0 200 OK" "\r\n"
 	"Content-Type: text/html; charset=Shift_JIS" "\r\n"
-	"Content-Length: 95" "\r\n"
+	"Connection: Close" "\r\n"
+	"Content-Length: 136" "\r\n"
 	"" "\r\n"
 	"<html>"
 	"<head><title>TCP server test</title><meta http-equiv=\"refresh\" content=\"1;/\"></head>"
@@ -73,6 +74,7 @@ static err_t tcp_server_result(void *arg, int status) {
 
 static err_t tcp_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
     DEBUG_printf("tcp_server_sent %u\n", len);
+    tcp_server_client_close(arg);
     return ERR_OK;
 }
 
