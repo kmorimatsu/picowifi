@@ -25,11 +25,11 @@ static char g_response[]=
 	"Content-Length: 95" "\r\n"
 	"" "\r\n"
 	"<html>"
-	"<head><title>TCP server test</title></head>"
+	"<head><title>TCP server test</title><meta http-equiv=\"refresh\" content=\"1;/\"></head>"
 	"<body>Hello TCP server world(0)!</body>"
 	"</html>"
 ;
-static char g_response_num=0x31;
+static char g_response_num=0x11;
 
 static uint8_t buffer_recv[BUF_SIZE];
 static volatile char g_server_complete;
@@ -78,7 +78,7 @@ static err_t tcp_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 
 err_t tcp_server_send_data(struct tcp_pcb *tpcb)
 {
-    g_response[(sizeof g_response)-1-17]=g_response_num++;
+    g_response[(sizeof g_response)-1-17]=0x20+((g_response_num++)&0x3f);
     DEBUG_printf("Writing %ld bytes to client\n", (sizeof g_response)-1);
     // this method is callback from lwIP, so cyw43_arch_lwip_begin is not required, however you
     // can use this method to cause an assertion in debug mode, if this method is called when
